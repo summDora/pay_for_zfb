@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>支付</title>
+    <style>
+        html,body{
+            padding:0;margin:0;
+            font-family:PingFangSC-Regular;
+            color:#333333; 
+            background:white;
+        }
+        p{
+            text-align: center;
+            font-size: 24px;
+            color:#E04D38;
+            line-height: 36px;
+            vertical-align: top;
+            margin:29px 0;
+        } 
+        .border{
+            border-bottom: 1px solid #D7D7D7 ;
+            margin-bottom: 10px;
+        }
+        .total{
+            font-size: 36px;
+        }
+        .bottom{
+            background: white;
+            padding:15px 16px;
+            margin:0 16px;
+            border-radius:4px;
+            box-shadow:0px 4px 30px 0px rgba(0,0,0,0.08);
+        }  
+        .price{
+            color:#E04D38
+        }
+        .line{
+            display: flex;
+            justify-content: space-between
+        }
+        .line span{
+            line-height: 32px;
+            font-size:14px;
+            font-weight:400;
+        }
+        button{
+            width:284px;
+            height:50px;
+            background:#E04D38;
+            border-radius:4px;
+            border:none;
+            font-size: 16px;
+            color:#FFFFFF;
+            display: block;
+            margin:0 auto;
+            margin-top:65px;
+        }
+
+    </style>
+</head>
+<body>
+    <section class="top">
+      <p >￥<span class="total">0</span></p>
+    </section> 
+    <section class="bottom">
+       <div class="border">
+           <div class="line" style="margin-bottom: 10px;">
+               <span>订单时间</span>
+               <span class="time"></span>
+           </div>
+       </div>
+       <div class="border">
+           <div class="line">
+               <span>商品金额</span>
+               <span class="price">99元</span>
+           </div>
+       </div>
+       <div>
+            <div class="line">
+                <span>商品名称</span>
+                <span>服务费用</span>
+            </div>
+            <div class="line">
+                <span>收款方</span>
+                <span>XXXXXXXXX有限公司</span>
+            </div>
+        </div>
+    </section>  
+    <div id="alipayRedict"></div>
+    <button class='pay'>确认支付</button>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script>
+        function getQueryString(name){
+            var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if(r!=null)return  unescape(r[2]); return null;
+        }
+        function getNowFormatDate() {
+            var date = new Date();
+            var seperator1 = "-";
+            var seperator2 = ":";
+            var month = date.getMonth() + 1;
+            var strDate = date.getDate();
+            if (month >= 1 && month <= 9) {
+                month = "0" + month;
+            }
+            if (strDate >= 0 && strDate <= 9) {
+                strDate = "0" + strDate;
+            }
+            var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+                    + " " + date.getHours() + seperator2 + date.getMinutes()
+                    + seperator2 + date.getSeconds();
+            return currentdate
+        }
+
+        var userAgent = navigator.userAgent.toLowerCase();
+        var result
+        var url_local='http://192.168.199.84:8080'
+        var nowtime=getNowFormatDate()
+        $('.time').text(nowtime)
+        var url=url_local+"?openId="+getQueryString("openid")
+        $.ajax({
+            url:url,
+            type:"POST",
+            dataType:'json',
+            success:function(res){
+                if(res.code==500){
+                    alert(res.message)
+                }else{                    
+                    result=res.data
+                    $('.order').text(result.orderNum)
+                }
+            },
+            error:function(res){
+                alert('获取订单号失败');
+            }
+        });   
+   
+    /* 确认支付 */
+    $('.pay').click(function(){
+       var price= $(".total").text()
+       $("#alipayRedict").html(result);   
+       // 获取订单号 得到的回调是一个form的h5代码  
+       // 将h5代码插入页面   确认支付的回调由后台设置 来确认回调地址
+       
+    })
+    </script>
+</body>
+</html>
